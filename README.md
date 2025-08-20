@@ -24,31 +24,32 @@ A comprehensive system for Radxa Rock5B+ that provides:
 
 ## Installation
 
-### Prerequisites
+### Quick Installation (Recommended)
 
+**Direct Installation on Radxa**:
 ```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install required system packages
-sudo apt install -y hostapd dnsmasq dhcpcd5 iptables-persistent
-sudo apt install -y ffmpeg v4l-utils gstreamer1.0-tools
-sudo apt install -y python3-pip python3-venv git
-sudo apt install -y iftop nethogs vnstat tcpdump wireshark
-sudo apt install -y nginx supervisor
+# On your Radxa Rock5B+:
+git clone https://github.com/SMT03/new-wave-linux.git
+cd new-wave-linux
+./install.sh
 ```
 
-### Python Environment Setup
-
+**SSH Deployment from Another Computer**:
 ```bash
-python3 -m venv radxa_env
-source radxa_env/bin/activate
-pip install -r requirements.txt
+# From your development machine:
+git clone https://github.com/SMT03/new-wave-linux.git
+cd new-wave-linux
+./scripts/deploy.sh <radxa-ip> --install --start
 ```
 
-### Transfer to Radxa
+The installation script will automatically:
+- ✅ Install all system dependencies
+- ✅ Set up Python environment
+- ✅ Configure network services
+- ✅ Create systemd services
+- ✅ Set up management commands
 
-```bash
+See [QUICKSTART.md](QUICKSTART.md) for detailed instructions.
 # From your development machine:
 scp -r /path/to/new-wave-linux radxa@<radxa-ip>:~/
 ssh radxa@<radxa-ip>

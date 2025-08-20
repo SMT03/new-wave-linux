@@ -1,69 +1,85 @@
-# 🚀 Quick Start Guide
+# 🚀 Radxa Rock5B+ Management System - Quick Install
 
-## Transfer to Radxa Rock5B+
+## One-Command Installation
 
-### Method 1: Automated Transfer + Installation
-
-```bash
-# Make deploy script executable
-chmod +x scripts/deploy.sh
-
-# Transfer, install, and start (replace with your Radxa IP)
-./scripts/deploy.sh 192.168.1.100 --install --start
-```
-
-### Method 2: Manual Transfer
+Clone and install directly on your Radxa Rock5B+:
 
 ```bash
-# Transfer files
-scp -r new-wave-linux radxa@192.168.1.100:~/
+# Clone the repository
+git clone https://github.com/SMT03/new-wave-linux.git
 
-# SSH to Radxa
-ssh radxa@192.168.1.100
-
-# Install
+# Navigate to directory
 cd new-wave-linux
-sudo ./scripts/install.sh
+
+# Run installation
+./install.sh
 ```
 
-## First Time Setup
+That's it! The script will:
+- ✅ Check system compatibility
+- ✅ Install all dependencies
+- ✅ Set up Python environment
+- ✅ Configure network services
+- ✅ Create systemd services
+- ✅ Set up management commands
 
-1. **Access Web Dashboard**: `http://192.168.1.100:8080`
-2. **Enable AP Mode**: Click "Enable AP" in dashboard
-3. **Connect Camera**: Plug in USB camera and click "Start Camera"
-4. **Start RTSP**: Click "Start RTSP" for streaming
-5. **Monitor Network**: Click "Start Monitoring" for real-time stats
+## Quick Start
 
-## Quick Commands
+After installation:
 
 ```bash
-# Service management
-sudo radxa-start          # Start all services
-sudo radxa-stop           # Stop all services
-radxa-status             # Check status
+# Start the system
+radxa start
 
-# Access Point
-sudo radxa-ap --enable-ap    # Enable AP mode
-sudo radxa-ap --disable-ap   # Disable AP mode
+# Access web dashboard
+# Open browser: http://YOUR_RADXA_IP:5000
 
-# Camera
-radxa-camera --list-cameras  # List cameras
-radxa-camera --start-rtsp    # Start RTSP server
+# Enable AP mode
+radxa enable-ap
 
-# Network monitoring
-radxa-network --status       # Show network status
+# Connect to WiFi: "Radxa_Rock5B_AP" (password: radxa12345)
+# Access AP dashboard: http://192.168.4.1:5000
 ```
 
-## URLs
+## Management Commands
 
-- **Web Dashboard**: `http://<radxa-ip>:8080`
-- **RTSP Stream**: `rtsp://<radxa-ip>:8554/live`
+```bash
+radxa start          # Start system
+radxa stop           # Stop system
+radxa restart        # Restart system
+radxa status         # Check status
+radxa logs           # View logs
+radxa enable-ap      # Enable AP mode
+radxa disable-ap     # Disable AP mode
+radxa uninstall      # Remove system
+radxa reset          # Reset to defaults
+```
 
-## Default Settings
+## System Features
 
-- **AP SSID**: RadxaAP
-- **AP Password**: radxa2024
-- **RTSP Port**: 8554
-- **Web Port**: 8080
+- 🌐 **AP Mode Management**: Switch between AP and client modes
+- 📹 **Camera Streaming**: RTSP streaming with frame rate monitoring
+- 📊 **Network Monitoring**: Bandwidth, clients, DHCP leases
+- 🎛️ **Web Dashboard**: Real-time system control and monitoring
+- ⚡ **Easy Management**: Simple command-line interface
 
-That's it! Your Radxa Rock5B+ is now a powerful network and camera management system! 🎉
+## Requirements
+
+- Radxa Rock5B+ with Ubuntu 20.04+
+- WiFi adapter with AP mode support
+- Internet connection for installation
+
+## Troubleshooting
+
+If you encounter issues:
+
+1. **Check logs**: `radxa logs`
+2. **Verify status**: `radxa status`
+3. **Restart system**: `radxa restart`
+4. **Reset configuration**: `radxa reset`
+
+For detailed troubleshooting, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
+
+---
+
+**Need the old SSH deployment method?** See [scripts/deploy.sh](scripts/deploy.sh)
