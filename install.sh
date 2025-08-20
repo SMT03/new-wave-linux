@@ -111,8 +111,41 @@ install_dependencies() {
         "v4l-utils"
     )
     
-    print_status "Installing packages: ${packages[*]}"
-    sudo apt install -y "${packages[@]}"
+    # Optional monitoring packages (install if available)
+    local optional_packages=(
+        "iftop"
+        "htop" 
+        "nethogs"
+        "vnstat"
+        "tcpdump"
+        "iperf3"
+        "netcat-openbsd"
+    )
+    
+    print_status "Installing essential packages..."
+    for package in "${packages[@]}"; do
+        if sudo apt install -y "$package"; then
+            print_status "✅ Installed $package"
+        else
+            print_warning "⚠️ Failed to install $package, continuing..."
+        fi
+    done
+    
+    print_status "Installing optional monitoring packages..."
+    for package in "${optional_packages[@]}"; do
+        if sudo apt install -y "$package" 2>/dev/null; then
+            print_status "✅ Installed $package"
+        else
+            print_warning "⚠️ Skipped $package (not available)"
+        fi
+    done
+    
+    # Try to install tshark (wireshark terminal interface)
+    if sudo apt install -y tshark 2>/dev/null; then
+        print_status "✅ Installed tshark"
+    else
+        print_warning "⚠️ Skipped tshark (not available)"
+    fi
     
     print_success "Dependencies installed"
 }

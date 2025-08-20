@@ -1,36 +1,19 @@
 #!/bin/bash
 
 # Radxa Rock5B+ Network & Camera Management System
-# Installation Script
+# Installation Script Redirect
 
-set -e
-
-echo "🚀 Installing Radxa Rock5B+ Network & Camera Management System"
-echo "=============================================================="
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Function to print colored output
-print_status() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+echo "� REDIRECTING TO NEW INSTALLER..."
+echo "=================================="
+echo ""
+echo "The installation script has moved to the root directory."
+echo "Please run the new installer:"
+echo ""
+echo "cd .."
+echo "./install.sh"
+echo ""
+echo "This will provide a better installation experience!"
+exit 1
 
 # Check if running as root
 if [[ $EUID -eq 0 ]]; then
@@ -89,10 +72,9 @@ sudo apt install -y \
     nethogs \
     vnstat \
     tcpdump \
-    wireshark-cli \
+    tshark \
     iperf3 \
-    netcat-openbsd \
-    ss
+    netcat-openbsd
 
 # Install multimedia packages
 print_status "Installing multimedia packages..."
