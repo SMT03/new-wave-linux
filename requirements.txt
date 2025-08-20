@@ -1,0 +1,36 @@
+# Core networking and system monitoring
+psutil>=5.9.0
+netifaces>=0.11.0
+scapy>=2.4.5
+pyshark>=0.6.0
+speedtest-cli>=2.1.3
+
+# Video processing and streaming
+opencv-python>=4.8.0
+ffmpeg-python>=0.2.0
+numpy>=1.24.0
+Pillow>=10.0.0
+imageio>=2.31.0
+
+# Web framework and API
+flask>=2.3.0
+flask-socketio>=5.3.0
+requests>=2.31.0
+
+# System configuration and YAML
+pyyaml>=6.0
+configparser>=5.3.0
+
+# Async and networking
+asyncio>=3.4.3
+aiohttp>=3.8.0
+websockets>=11.0
+
+# Utilities
+click>=8.1.0
+colorama>=0.4.6
+python-dateutil>=2.8.2
+
+# Optional: For advanced network analysis
+# netaddr>=0.8.0
+# pyroute2>=0.7.0

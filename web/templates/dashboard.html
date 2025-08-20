@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radxa Rock5B+ Dashboard</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .status-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #dc3545;
+        }
+
+        .status-indicator.active {
+            background: #28a745;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f8f9fa;
+            padding-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .button-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .button-primary:hover {
+            background: #0056b3;
+        }
+
+        .button-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .button-success:hover {
+            background: #1e7e34;
+        }
+
+        .button-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .button-danger:hover {
+            background: #c82333;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        .log-container {
+            background: #1e1e1e;
+            color: #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .interface-list {
+            list-style: none;
+        }
+
+        .interface-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .interface-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .interface-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .interface-details {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .camera-select {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .rtsp-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Radxa Rock5B+ Control Center</h1>
+            <p>Network Management & Camera Streaming Dashboard</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-indicator" id="ap-indicator"></div>
+                <span>Access Point: <span id="ap-status">Checking...</span></span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator" id="camera-indicator"></div>
+                <span>Camera: <span id="camera-status">Checking...</span></span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator" id="monitoring-indicator"></div>
+                <span>Monitoring: <span id="monitoring-status">Inactive</span></span>
+            </div>
+            <div class="status-item">
+                <span>Last Update: <span id="last-update">Never</span></span>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Access Point Management -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📡 Access Point Control</div>
+                </div>
+                
+                <div class="connection-status">
+                    <div class="status-indicator" id="ap-detail-indicator"></div>
+                    <span id="ap-detail-status">Loading...</span>
+                </div>
+
+                <div id="ap-info" class="alert alert-info" style="display: none;">
+                    <strong>SSID:</strong> <span id="ap-ssid">-</span><br>
+                    <strong>Connected Clients:</strong> <span id="ap-clients">0</span>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="button button-success" onclick="enableAP()">Enable AP</button>
+                    <button class="button button-danger" onclick="disableAP()">Disable AP</button>
+                </div>
+
+                <div id="ap-clients-list" style="margin-top: 15px;"></div>
+            </div>
+
+            <!-- Network Monitoring -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🌐 Network Statistics</div>
+                    <button class="button button-primary" onclick="toggleMonitoring()" id="monitoring-btn">Start Monitoring</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="network-sent">0 MB</div>
+                        <div class="stat-label">Data Sent</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="network-received">0 MB</div>
+                        <div class="stat-label">Data Received</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="network-speed-up">0 Mbps</div>
+                        <div class="stat-label">Upload Speed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="network-speed-down">0 Mbps</div>
+                        <div class="stat-label">Download Speed</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="networkChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Camera Control -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📹 Camera Streaming</div>
+                </div>
+
+                <div class="camera-controls">
+                    <select class="camera-select" id="camera-select">
+                        <option value="/dev/video0">Default Camera (/dev/video0)</option>
+                    </select>
+                    <button class="button button-primary" onclick="refreshCameras()">Refresh</button>
+                </div>
+
+                <div class="connection-status">
+                    <div class="status-indicator" id="camera-detail-indicator"></div>
+                    <span id="camera-detail-status">Not Connected</span>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="button button-success" onclick="startCamera()">Start Camera</button>
+                    <button class="button button-danger" onclick="stopCamera()">Stop Camera</button>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="button button-primary" onclick="startRTSP()">Start RTSP</button>
+                    <button class="button button-danger" onclick="stopRTSP()">Stop RTSP</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="camera-fps">0</div>
+                        <div class="stat-label">FPS</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="camera-resolution">0x0</div>
+                        <div class="stat-label">Resolution</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="camera-bandwidth">0 Mbps</div>
+                        <div class="stat-label">Bandwidth</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="camera-dropped">0%</div>
+                        <div class="stat-label">Dropped</div>
+                    </div>
+                </div>
+
+                <div id="rtsp-info" class="rtsp-info" style="display: none;">
+                    <strong>RTSP Stream URL:</strong><br>
+                    <code id="rtsp-url">rtsp://&lt;ip&gt;:8554/live</code>
+                </div>
+            </div>
+
+            <!-- System Information -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">⚡ System Performance</div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="cpu-usage">0%</div>
+                        <div class="stat-label">CPU Usage</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="memory-usage">0%</div>
+                        <div class="stat-label">Memory Usage</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="disk-usage">0%</div>
+                        <div class="stat-label">Disk Usage</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="load-avg">0.0</div>
+                        <div class="stat-label">Load Average</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="systemChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Network Interfaces -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🔌 Network Interfaces</div>
+                    <button class="button button-primary" onclick="refreshInterfaces()">Refresh</button>
+                </div>
+
+                <ul class="interface-list" id="interface-list">
+                    <li class="interface-item">
+                        <div class="interface-info">
+                            <div class="interface-name">Loading...</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Real-time Logs -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📋 Real-time Logs</div>
+                    <button class="button button-primary" onclick="clearLogs()">Clear</button>
+                </div>
+
+                <div class="log-container" id="log-container">
+                    <div>System initialized...</div>
+                    <div>Waiting for real-time data...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WebSocket connection
+        const socket = io();
+        
+        // Chart instances
+        let networkChart = null;
+        let systemChart = null;
+        
+        // Data arrays for charts
+        let networkData = {
+            labels: [],
+            sent: [],
+            received: []
+        };
+        
+        let systemData = {
+            labels: [],
+            cpu: [],
+            memory: []
+        };
+
+        // Initialize charts
+        function initCharts() {
+            // Network Chart
+            const networkCtx = document.getElementById('networkChart').getContext('2d');
+            networkChart = new Chart(networkCtx, {
+                type: 'line',
+                data: {
+                    labels: networkData.labels,
+                    datasets: [{
+                        label: 'Upload (Mbps)',
+                        data: networkData.sent,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.1
+                    }, {
+                        label: 'Download (Mbps)',
+                        data: networkData.received,
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // System Chart
+            const systemCtx = document.getElementById('systemChart').getContext('2d');
+            systemChart = new Chart(systemCtx, {
+                type: 'line',
+                data: {
+                    labels: systemData.labels,
+                    datasets: [{
+                        label: 'CPU Usage (%)',
+                        data: systemData.cpu,
+                        borderColor: 'rgb(255, 205, 86)',
+                        backgroundColor: 'rgba(255, 205, 86, 0.2)',
+                        tension: 0.1
+                    }, {
+                        label: 'Memory Usage (%)',
+                        data: systemData.memory,
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Socket event handlers
+        socket.on('connect', function() {
+            log('Connected to dashboard');
+            loadInitialData();
+        });
+
+        socket.on('real_time_data', function(data) {
+            updateDashboard(data);
+        });
+
+        socket.on('monitoring_status', function(data) {
+            updateMonitoringStatus(data.active);
+        });
+
+        // Dashboard functions
+        function loadInitialData() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    updateDashboard(data);
+                })
+                .catch(error => {
+                    log('Error loading initial data: ' + error);
+                });
+
+            refreshCameras();
+            refreshInterfaces();
+        }
+
+        function updateDashboard(data) {
+            const timestamp = new Date().toLocaleTimeString();
+            document.getElementById('last-update').textContent = timestamp;
+
+            // Update AP status
+            if (data.ap_status) {
+                const apActive = data.ap_status.ap_enabled;
+                updateIndicator('ap-indicator', apActive);
+                document.getElementById('ap-status').textContent = apActive ? 'Active' : 'Inactive';
+                document.getElementById('ap-detail-status').textContent = apActive ? 'Access Point Active' : 'Access Point Inactive';
+                updateIndicator('ap-detail-indicator', apActive);
+
+                if (apActive) {
+                    document.getElementById('ap-info').style.display = 'block';
+                    document.getElementById('ap-ssid').textContent = data.ap_status.ssid || 'Unknown';
+                    document.getElementById('ap-clients').textContent = data.ap_status.connected_clients?.length || 0;
+                }
+            }
+
+            // Update camera status
+            if (data.camera_status) {
+                const cameraActive = data.camera_status.camera_connected;
+                updateIndicator('camera-indicator', cameraActive);
+                document.getElementById('camera-status').textContent = cameraActive ? 'Connected' : 'Disconnected';
+                
+                if (cameraActive) {
+                    document.getElementById('camera-detail-status').textContent = 'Camera Connected';
+                    updateIndicator('camera-detail-indicator', true);
+                    
+                    document.getElementById('camera-fps').textContent = data.camera_status.current_fps || 0;
+                    document.getElementById('camera-resolution').textContent = data.camera_status.resolution || '0x0';
+                    document.getElementById('camera-bandwidth').textContent = (data.camera_status.bandwidth_mbps || 0).toFixed(2) + ' Mbps';
+                    document.getElementById('camera-dropped').textContent = (data.camera_status.drop_rate_percent || 0).toFixed(1) + '%';
+                    
+                    if (data.camera_status.rtsp_active) {
+                        document.getElementById('rtsp-info').style.display = 'block';
+                    }
+                } else {
+                    document.getElementById('camera-detail-status').textContent = 'Camera Disconnected';
+                    updateIndicator('camera-detail-indicator', false);
+                }
+            }
+
+            // Update network statistics
+            if (data.network && data.network.network_stats && data.network.network_stats.overall) {
+                const stats = data.network.network_stats.overall;
+                document.getElementById('network-sent').textContent = formatBytes(stats.bytes_sent);
+                document.getElementById('network-received').textContent = formatBytes(stats.bytes_recv);
+            }
+
+            // Update system info
+            if (data.network && data.network.system_info) {
+                const sysInfo = data.network.system_info;
+                document.getElementById('cpu-usage').textContent = (sysInfo.cpu?.usage_percent || 0).toFixed(1) + '%';
+                document.getElementById('memory-usage').textContent = (sysInfo.memory?.percent || 0).toFixed(1) + '%';
+                document.getElementById('disk-usage').textContent = (sysInfo.disk?.percent || 0).toFixed(1) + '%';
+                document.getElementById('load-avg').textContent = (sysInfo.load_average?.['1min'] || 0).toFixed(2);
+
+                // Update system chart
+                updateSystemChart(timestamp, sysInfo.cpu?.usage_percent || 0, sysInfo.memory?.percent || 0);
+            }
+
+            log('Dashboard updated: ' + timestamp);
+        }
+
+        function updateIndicator(id, active) {
+            const indicator = document.getElementById(id);
+            if (active) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+        }
+
+        function updateSystemChart(label, cpu, memory) {
+            systemData.labels.push(label);
+            systemData.cpu.push(cpu);
+            systemData.memory.push(memory);
+
+            if (systemData.labels.length > 20) {
+                systemData.labels.shift();
+                systemData.cpu.shift();
+                systemData.memory.shift();
+            }
+
+            if (systemChart) {
+                systemChart.update();
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function log(message) {
+            const logContainer = document.getElementById('log-container');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('log-container').innerHTML = '';
+        }
+
+        // Control functions
+        function enableAP() {
+            log('Enabling Access Point...');
+            fetch('/api/ap/enable', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        log('Access Point enabled successfully');
+                    } else {
+                        log('Failed to enable Access Point: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => log('Error enabling AP: ' + error));
+        }
+
+        function disableAP() {
+            log('Disabling Access Point...');
+            fetch('/api/ap/disable', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        log('Access Point disabled successfully');
+                    } else {
+                        log('Failed to disable Access Point: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => log('Error disabling AP: ' + error));
+        }
+
+        function startCamera() {
+            const device = document.getElementById('camera-select').value;
+            log('Starting camera: ' + device);
+            fetch('/api/camera/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ device: device })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        log('Camera started successfully');
+                    } else {
+                        log('Failed to start camera: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => log('Error starting camera: ' + error));
+        }
+
+        function stopCamera() {
+            log('Stopping camera...');
+            fetch('/api/camera/stop', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        log('Camera stopped successfully');
+                    } else {
+                        log('Failed to stop camera: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => log('Error stopping camera: ' + error));
+        }
+
+        function startRTSP() {
+            log('Starting RTSP server...');
+            fetch('/api/camera/rtsp/start', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        log('RTSP server started successfully');
+                        document.getElementById('rtsp-info').style.display = 'block';
+                    } else {
+                        log('Failed to start RTSP server: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => log('Error starting RTSP: ' + error));
+        }
+
+        function stopRTSP() {
+            log('Stopping RTSP server...');
+            fetch('/api/camera/rtsp/stop', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        log('RTSP server stopped successfully');
+                        document.getElementById('rtsp-info').style.display = 'none';
+                    } else {
+                        log('Failed to stop RTSP server: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => log('Error stopping RTSP: ' + error));
+        }
+
+        function toggleMonitoring() {
+            const button = document.getElementById('monitoring-btn');
+            const isActive = button.textContent === 'Stop Monitoring';
+            
+            if (isActive) {
+                socket.emit('stop_monitoring');
+                button.textContent = 'Start Monitoring';
+                button.className = 'button button-primary';
+            } else {
+                socket.emit('start_monitoring');
+                button.textContent = 'Stop Monitoring';
+                button.className = 'button button-danger';
+            }
+        }
+
+        function updateMonitoringStatus(active) {
+            updateIndicator('monitoring-indicator', active);
+            document.getElementById('monitoring-status').textContent = active ? 'Active' : 'Inactive';
+        }
+
+        function refreshCameras() {
+            fetch('/api/cameras')
+                .then(response => response.json())
+                .then(cameras => {
+                    const select = document.getElementById('camera-select');
+                    select.innerHTML = '';
+                    
+                    cameras.forEach(camera => {
+                        const option = document.createElement('option');
+                        option.value = camera.device;
+                        option.textContent = `${camera.device} (${camera.type})`;
+                        select.appendChild(option);
+                    });
+                    
+                    log('Camera list refreshed: ' + cameras.length + ' cameras found');
+                })
+                .catch(error => log('Error refreshing cameras: ' + error));
+        }
+
+        function refreshInterfaces() {
+            fetch('/api/network/interfaces')
+                .then(response => response.json())
+                .then(interfaces => {
+                    const list = document.getElementById('interface-list');
+                    list.innerHTML = '';
+                    
+                    interfaces.forEach(iface => {
+                        const item = document.createElement('li');
+                        item.className = 'interface-item';
+                        item.innerHTML = `
+                            <div class="interface-info">
+                                <div class="interface-name">${iface.name} (${iface.type})</div>
+                                <div class="interface-details">
+                                    IP: ${iface.ipv4_address || 'No IP'} | 
+                                    Status: ${iface.is_up ? 'Up' : 'Down'} |
+                                    Speed: ${iface.speed || 'Unknown'} Mbps
+                                </div>
+                            </div>
+                            <div class="status-indicator ${iface.is_up ? 'active' : ''}"></div>
+                        `;
+                        list.appendChild(item);
+                    });
+                    
+                    log('Network interfaces refreshed: ' + interfaces.length + ' interfaces found');
+                })
+                .catch(error => log('Error refreshing interfaces: ' + error));
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            log('Dashboard initialized');
+        });
+    </script>
+</body>
+</html>

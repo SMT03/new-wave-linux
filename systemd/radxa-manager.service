@@ -1,0 +1,49 @@
+[Unit]
+Description=Radxa Rock5B+ Network & Camera Management System
+Documentation=https://github.com/SMT03/new-wave-linux
+After=network-online.target
+Wants=network-online.target
+Requires=network.target
+
+[Service]
+Type=simple
+User=radxa
+Group=radxa
+WorkingDirectory=/opt/radxa
+Environment=PYTHONPATH=/opt/radxa
+Environment=FLASK_ENV=production
+ExecStart=/opt/radxa/venv/bin/python /opt/radxa/web_dashboard.py --config /etc/radxa/settings.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=mixed
+KillSignal=SIGINT
+TimeoutStopSec=5
+Restart=always
+RestartSec=10
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/radxa /var/lib/radxa /tmp/radxa
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictNamespaces=true
+
+# Resource limits
+MemoryMax=512M
+CPUQuota=150%
+TasksMax=50
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=radxa-manager
+
+[Install]
+WantedBy=multi-user.target
+Alias=radxa.service

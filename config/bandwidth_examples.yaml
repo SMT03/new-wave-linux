@@ -1,0 +1,41 @@
+# Example bandwidth calculation configurations
+# Use with: python3 bandwidth_calculator.py --config-file examples.yaml
+
+# Multiple stream configurations
+streams:
+  - name: "Main Entrance Camera"
+    width: 1920
+    height: 1080
+    fps: 30
+    compression: "h264_medium"
+  
+  - name: "Parking Lot Camera"
+    width: 1280
+    height: 720
+    fps: 15
+    compression: "h264_high"
+    
+  - name: "High Quality Monitoring"
+    resolution: "4k"
+    fps: 24
+    compression: "h265_medium"
+
+# Alternative format for comparison analysis
+configurations:
+  - name: "720p Standard"
+    resolution: "720p"
+    fps: 30
+    compressions: ["raw", "h264_low", "h264_medium", "h264_high", "h265_high"]
+    
+  - name: "1080p Standard"
+    resolution: "1080p" 
+    fps: 30
+    compressions: ["raw", "h264_medium", "h265_medium"]
+    
+  - name: "4K Cinema"
+    width: 3840
+    height: 2160
+    fps: 24
+    bit_depth: 10
+    channels: 3
+    compressions: ["raw", "h265_low", "h265_medium", "h265_high"]

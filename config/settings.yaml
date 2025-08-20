@@ -1,0 +1,95 @@
+# Radxa Rock5B+ System Configuration
+
+# Network Configuration
+network:
+  # WiFi Interface (usually wlan0 or wlan1)
+  wifi_interface: "wlan0"
+  
+  # Ethernet Interface
+  ethernet_interface: "eth0"
+  
+  # Access Point Configuration
+  ap_config:
+    ssid: "RadxaAP"
+    password: "radxa2024"
+    channel: 7
+    ip_range: "192.168.4.0/24"
+    gateway: "192.168.4.1"
+    dhcp_start: "192.168.4.2"
+    dhcp_end: "192.168.4.20"
+    
+  # DNS Servers
+  dns_servers:
+    - "8.8.8.8"
+    - "8.8.4.4"
+    - "1.1.1.1"
+
+# Camera Configuration
+camera:
+  # Default camera device
+  default_device: "/dev/video0"
+  
+  # RTSP Server Configuration
+  rtsp:
+    port: 8554
+    path: "/live"
+    
+  # Video Settings
+  video:
+    width: 1920
+    height: 1080
+    fps: 30
+    bitrate: "2M"
+    codec: "h264"
+    
+  # Recording Settings
+  recording:
+    enabled: false
+    path: "/var/recordings"
+    max_size_gb: 10
+
+# Monitoring Configuration
+monitoring:
+  # Update intervals (seconds)
+  network_update_interval: 1
+  system_update_interval: 5
+  camera_update_interval: 0.5
+  
+  # Network interfaces to monitor
+  interfaces:
+    - "wlan0"
+    - "eth0"
+    - "wlan1"
+    
+  # Data retention (hours)
+  data_retention: 24
+
+# Web Dashboard
+web:
+  host: "0.0.0.0"
+  port: 8080
+  debug: false
+  
+# System Paths
+paths:
+  log_dir: "/var/log/radxa"
+  config_dir: "/etc/radxa"
+  temp_dir: "/tmp/radxa"
+  
+# Logging Configuration
+logging:
+  level: "INFO"
+  max_size_mb: 10
+  backup_count: 5
+
+# Performance Settings
+performance:
+  # Maximum number of concurrent streams
+  max_streams: 4
+  
+  # Buffer sizes
+  network_buffer_size: 65536
+  video_buffer_size: 1048576
+  
+  # CPU usage limits
+  max_cpu_percent: 80
