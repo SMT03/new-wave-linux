@@ -1,36 +1,28 @@
-# 🚀 Radxa Rock5B+ Management System - Quick Install
+# 🚀 Radxa Rock5B+ Management System - Quick Start
 
-## One-Command Installation
+## ⚡ One-Command Installation
 
 Clone and install directly on your Radxa Rock5B+:
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/SMT03/new-wave-linux.git
 
-# Navigate to directory
+# 2. Navigate to directory
 cd new-wave-linux
 
-# Run installation
+# 3. Run installation
 ./install.sh
+
+# 4. Start the system
+radxa start
 ```
 
-That's it! The script will:
-- ✅ Check system compatibility
-- ✅ Install all dependencies
-- ✅ Set up Python environment
-- ✅ Configure network services
-- ✅ Create systemd services
-- ✅ Set up management commands
+**That's it!** The system is now running.
 
-## Quick Start
-
-After installation:
+## 🎯 Quick Start After Installation
 
 ```bash
-# Start the system
-radxa start
-
 # Access web dashboard
 # Open browser: http://YOUR_RADXA_IP:5000
 
@@ -41,7 +33,7 @@ radxa enable-ap
 # Access AP dashboard: http://192.168.4.1:5000
 ```
 
-## Management Commands
+## 🔧 Management Commands
 
 ```bash
 radxa start          # Start system
@@ -55,31 +47,68 @@ radxa uninstall      # Remove system
 radxa reset          # Reset to defaults
 ```
 
-## System Features
+## ✨ What Gets Installed
 
-- 🌐 **AP Mode Management**: Switch between AP and client modes
-- 📹 **Camera Streaming**: RTSP streaming with frame rate monitoring
-- 📊 **Network Monitoring**: Bandwidth, clients, DHCP leases
-- 🎛️ **Web Dashboard**: Real-time system control and monitoring
-- ⚡ **Easy Management**: Simple command-line interface
+The installer automatically sets up:
+- ✅ **Python Environment**: Virtual environment with all dependencies
+- ✅ **Network Services**: hostapd, dnsmasq, iptables configuration
+- ✅ **Web Dashboard**: Flask-based management interface on port 5000
+- ✅ **RTSP Server**: Camera streaming on port 8554
+- ✅ **System Services**: Automatic startup and management
+- ✅ **Management Commands**: Easy-to-use CLI tools
 
-## Requirements
+## 🌐 Access Points
+
+- **Normal Mode**: `http://YOUR_RADXA_IP:5000`
+- **AP Mode**: `http://192.168.4.1:5000`
+- **RTSP Stream**: `rtsp://YOUR_RADXA_IP:8554/live`
+
+## 📋 System Requirements
 
 - Radxa Rock5B+ with Ubuntu 20.04+
 - WiFi adapter with AP mode support
 - Internet connection for installation
+- Optional: USB camera for streaming
 
-## Troubleshooting
+## 🔍 Quick Troubleshooting
 
-If you encounter issues:
+**Installation Issues**:
+```bash
+# Check logs during installation
+./install.sh 2>&1 | tee install.log
 
-1. **Check logs**: `radxa logs`
-2. **Verify status**: `radxa status`
-3. **Restart system**: `radxa restart`
-4. **Reset configuration**: `radxa reset`
+# If packages fail, update and retry
+sudo apt update
+./install.sh
+```
 
-For detailed troubleshooting, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
+**Service Issues**:
+```bash
+# Check system status
+radxa status
+
+# View logs
+radxa logs
+
+# Restart if needed
+radxa restart
+```
+
+**Network Issues**:
+```bash
+# Check IP address
+ip addr show
+
+# Test AP mode support
+iw list | grep -A 10 "Supported interface modes"
+```
+
+## 📖 Need More Details?
+
+- **[Complete Deployment Guide](DEPLOYMENT_GUIDE.md)** - Step-by-step installation with troubleshooting
+- **[User Guide](docs/USER_GUIDE.md)** - Complete feature documentation
+- **[GitHub Repository](https://github.com/SMT03/new-wave-linux)** - Source code and issues
 
 ---
 
-**Need the old SSH deployment method?** See [scripts/deploy.sh](scripts/deploy.sh)
+**⚡ Get started in under 10 minutes!**
