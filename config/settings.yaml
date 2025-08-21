@@ -3,10 +3,7 @@
 # Network Configuration
 network:
   # WiFi Interface (usually wlan0 or wlan1)
-  wifi_interface: "wlan0"
-  
-  # Ethernet Interface
-  ethernet_interface: "eth0"
+  wifi_interface: "wlP2p33s0"
   
   # Access Point Configuration
   ap_config:
