@@ -20,8 +20,24 @@ import numpy as np
 import psutil
 from pathlib import Path
 
+# Auto-detect config path
+SCRIPT_DIR = Path(__file__).parent
+CONFIG_PATH = SCRIPT_DIR.parent / "config" / "settings.yaml"
+
 class CameraStreamer:
-    def __init__(self, config_path="/workspaces/new-wave-linux/config/settings.yaml"):
+    """
+    Camera streaming and recording system for Radxa Rock5B+
+    """
+    
+    def __init__(self, config_path=None):
+        """
+        Initialize Camera Streamer
+        
+        Args:
+            config_path: Path to configuration file (auto-detected if None)
+        """
+        if config_path is None:
+            config_path = str(CONFIG_PATH)
         self.config = self.load_config(config_path)
         self.camera_config = self.config['camera']
         self.logger = self.setup_logging()
@@ -497,9 +513,8 @@ def main():
     parser.add_argument('--stream', action='store_true', help='Start streaming with display')
     parser.add_argument('--test', type=int, help='Run performance test for N seconds')
     parser.add_argument('--stats', action='store_true', help='Show current statistics')
-    parser.add_argument('--config', default='/workspaces/new-wave-linux/config/settings.yaml',
-                       help='Path to configuration file')
-    
+    parser.add_argument('--config', default=str(CONFIG_PATH),
+                        help='Path to configuration file')
     args = parser.parse_args()
     
     streamer = CameraStreamer(args.config)

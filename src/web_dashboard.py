@@ -14,15 +14,28 @@ from datetime import datetime
 from flask import Flask, render_template, request, jsonify, Response
 from flask_socketio import SocketIO, emit
 import yaml
+from pathlib import Path
+
+# Auto-detect config path
+SCRIPT_DIR = Path(__file__).parent
+CONFIG_PATH = SCRIPT_DIR.parent / "config" / "settings.yaml"
 
 # Import our modules
-sys.path.append('/workspaces/new-wave-linux/src')
+sys.path.append(str(SCRIPT_DIR))
 from ap_manager import APManager
 from network_monitor import NetworkMonitor
 from camera_streamer import CameraStreamer
 
 class WebDashboard:
-    def __init__(self, config_path="/workspaces/new-wave-linux/config/settings.yaml"):
+    def __init__(self, config_path=None):
+        """
+        Initialize Web Dashboard
+        
+        Args:
+            config_path: Path to configuration file (auto-detected if None)
+        """
+        if config_path is None:
+            config_path = str(CONFIG_PATH)
         self.config = self.load_config(config_path)
         self.web_config = self.config['web']
         self.logger = self.setup_logging()
@@ -311,9 +324,14 @@ class WebDashboard:
 
 def main():
     import argparse
+    from pathlib import Path
+    
+    # Auto-detect config path relative to script location
+    script_dir = Path(__file__).parent.parent
+    default_config = script_dir / "config" / "settings.yaml"
     
     parser = argparse.ArgumentParser(description='Radxa Rock5B+ Web Dashboard')
-    parser.add_argument('--config', default='/workspaces/new-wave-linux/config/settings.yaml',
+    parser.add_argument('--config', default=str(default_config),
                        help='Path to configuration file')
     parser.add_argument('--host', help='Host to bind to')
     parser.add_argument('--port', type=int, help='Port to bind to')

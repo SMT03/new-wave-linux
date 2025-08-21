@@ -19,9 +19,26 @@ import netifaces
 import subprocess
 import socket
 import re
+from pathlib import Path
+
+# Auto-detect config path
+SCRIPT_DIR = Path(__file__).parent
+CONFIG_PATH = SCRIPT_DIR.parent / "config" / "settings.yaml"
 
 class NetworkMonitor:
-    def __init__(self, config_path="/workspaces/new-wave-linux/config/settings.yaml"):
+    """
+    Real-time network monitoring and management system for Radxa Rock5B+
+    """
+    
+    def __init__(self, config_path=None):
+        """
+        Initialize Network Monitor
+        
+        Args:
+            config_path: Path to configuration file (auto-detected if None)
+        """
+        if config_path is None:
+            config_path = str(CONFIG_PATH)
         self.config = self.load_config(config_path)
         self.logger = self.setup_logging()
         self.interfaces = self.config['monitoring']['interfaces']
@@ -474,9 +491,8 @@ def main():
     parser.add_argument('--export', help='Export data to file')
     parser.add_argument('--status', action='store_true', help='Show current status')
     parser.add_argument('--continuous', action='store_true', help='Run continuous monitoring')
-    parser.add_argument('--config', default='/workspaces/new-wave-linux/config/settings.yaml',
-                       help='Path to configuration file')
-    
+    parser.add_argument('--config', default=str(CONFIG_PATH),
+                        help='Path to configuration file')
     args = parser.parse_args()
     
     monitor = NetworkMonitor(args.config)

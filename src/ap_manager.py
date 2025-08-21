@@ -15,8 +15,24 @@ import yaml
 import psutil
 import netifaces
 
+# Auto-detect config path
+SCRIPT_DIR = Path(__file__).parent
+CONFIG_PATH = SCRIPT_DIR.parent / "config" / "settings.yaml"
+
 class APManager:
-    def __init__(self, config_path="/workspaces/new-wave-linux/config/settings.yaml"):
+    """
+    Manages WiFi Access Point functionality for Radxa Rock5B+
+    """
+    
+    def __init__(self, config_path=None):
+        """
+        Initialize AP Manager
+        
+        Args:
+            config_path: Path to configuration file (auto-detected if None)
+        """
+        if config_path is None:
+            config_path = str(CONFIG_PATH)
         self.config = self.load_config(config_path)
         self.wifi_interface = self.config['network']['wifi_interface']
         self.ap_config = self.config['network']['ap_config']
@@ -323,9 +339,8 @@ def main():
     parser.add_argument('--enable-ap', action='store_true', help='Enable AP mode')
     parser.add_argument('--disable-ap', action='store_true', help='Disable AP mode')
     parser.add_argument('--status', action='store_true', help='Show AP status')
-    parser.add_argument('--config', default='/workspaces/new-wave-linux/config/settings.yaml', 
-                       help='Path to configuration file')
-    
+    parser.add_argument('--config', default=str(CONFIG_PATH), 
+                        help='Path to configuration file')
     args = parser.parse_args()
     
     ap_manager = APManager(args.config)
