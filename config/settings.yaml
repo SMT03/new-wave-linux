@@ -1,0 +1,3 @@
+    wifi_interface: "wlP2p33s0"
+    interfaces:
+      - "wlP2p33s0"
